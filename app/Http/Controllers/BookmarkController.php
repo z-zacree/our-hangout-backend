@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\Bookmark;
+use App\Models\PostCategory;
+use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +21,25 @@ class BookmarkController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api');
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+        $postIds = Bookmark::where('user_id', $user->id)->pluck('post_id');
+        foreach ($postIds as $postId) {
+            $post = Post::where('id', $postId)->get()->first();
+            $cat_ids = PostCategory::where('post_id', $post->id)->pluck('category_id');
+            foreach ($cat_ids as $cat_id) {
+                $catnames[] = Category::where('id', $cat_id)->first();
+            }
+
+            $post->categories = $catnames;
+            $post->bookmarks = count(Bookmark::where('post_id', $post->id)->get());
+            $post->author = User::where('id', $post->user_id)->first()->only(['id', 'username', 'avatar']);
+            $posts[] = $post;
+        }
+        return $posts;
     }
 
     /**

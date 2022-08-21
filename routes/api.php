@@ -30,11 +30,13 @@ Route::put('account', [UserController::class, 'update']);
 // Posts
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
+Route::post('/posts', [PostController::class, 'store']);
 
 // Categories
-Route::get('/category', [CategoryController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/c/{name}', [CategoryController::class, 'show']);
 
 // Bookmarks
+Route::get('/bookmarks', [BookmarkController::class, 'index']);
 Route::post('/bookmark/{id}', [BookmarkController::class, 'store']);
 Route::delete('/bookmark/{id}', [BookmarkController::class, 'destroy']);

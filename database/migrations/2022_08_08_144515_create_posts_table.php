@@ -23,7 +23,7 @@ class CreatePostsTable extends Migration
             $table->string('title');
             $table->text('subtitle')->nullable();
             $table->text('content');
-            $table->integer('views');
+            $table->integer('views')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

@@ -8,6 +8,7 @@ use App\Models\PostCategory;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -53,7 +54,7 @@ class PostController extends Controller
 
         $post->categories = $catnames;
         $post->bookmarks = count(Bookmark::where('post_id', $post->id)->get());
-        $post->author = User::where('id', $post->user_id)->first();
+        $post->author = User::where('id', $post->user_id)->first()->only(['id', 'username', 'avatar']);
 
         return $post;
     }
@@ -66,7 +67,45 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = Auth::user();
+
+        $post = Post::create([
+            'title' => $request->title,
+            'subtitle' => $request->subtitle,
+            'content' => $request->content,
+            'type' => $request->type,
+            'user_id' => $user->id,
+        ]);
+
+        foreach ($request->categories as $category) {
+            $check = Category::where('name', $category)->first();
+
+            if ($check) {
+                PostCategory::create([
+                    'post_id' => $post->id,
+                    'category_id' => Category::where('name', $category)->first()->id,
+                ]);
+            } else {
+                $newCategory = Category::create([
+                    'name' => $category,
+                    'description' => 'New Category, a description has yet to be made',
+                    'color' => '#ffffff',
+                ]);
+                $category = PostCategory::create([
+                    'post_id' => $post->id,
+                    'category_id' => $newCategory->id,
+                ]);
+            }
+        }
+
+        $post->categories = $request->categories;
+        $post->bookmarks = 0;
+        $post->author = User::where('id', $user->id)->first()->only(['id', 'username', 'avatar']);
+
+        return response()->json([
+            'message' => 'Post created successfully',
+            'post' => $post
+        ], 201);
     }
 
     /**

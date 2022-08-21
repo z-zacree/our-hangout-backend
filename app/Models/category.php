@@ -13,8 +13,8 @@ class Category extends Model
 
     protected $fillable = [
         'name',
+        'color',
         'description',
-        'icon',
     ];
 
     public function postCategories()

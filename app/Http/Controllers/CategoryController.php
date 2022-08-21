@@ -21,6 +21,10 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
 
+        foreach ($categories as $category) {
+            $category->count = count(PostCategory::where('category_id', $category->id)->get());
+        }
+
         if ($categories) {
             return response()->json($categories, 200);
         } else {
